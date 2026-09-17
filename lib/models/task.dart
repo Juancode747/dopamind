@@ -4,7 +4,7 @@ class Task {
   final int? id;
   final String title;
   final String? description;
-  final String priority; // high, medium, low
+  final String priority;
   final String category;
   final bool completed;
   final bool photoVerified;
@@ -12,6 +12,9 @@ class Task {
   final DateTime createdAt;
   final DateTime? completedAt;
   final DateTime? dueDate;
+  final int? scheduledHour;
+  final int? scheduledMinute;
+  final List<String> verificationKeywords;
 
   Task({
     this.id,
@@ -25,7 +28,17 @@ class Task {
     DateTime? createdAt,
     this.completedAt,
     this.dueDate,
+    this.scheduledHour,
+    this.scheduledMinute,
+    this.verificationKeywords = const [],
   }) : createdAt = createdAt ?? DateTime.now();
+
+  String get scheduledTime {
+    if (scheduledHour == null || scheduledMinute == null) return '';
+    final h = scheduledHour!.toString().padLeft(2, '0');
+    final m = scheduledMinute!.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
 
   Color get priorityColor {
     switch (priority) {
@@ -83,6 +96,9 @@ class Task {
       'created_at': createdAt.toIso8601String(),
       'completed_at': completedAt?.toIso8601String(),
       'due_date': dueDate?.toIso8601String(),
+      'scheduled_hour': scheduledHour,
+      'scheduled_minute': scheduledMinute,
+      'verification_keywords': verificationKeywords.join(','),
     };
   }
 
@@ -103,6 +119,13 @@ class Task {
       dueDate: map['due_date'] != null
           ? DateTime.parse(map['due_date'] as String)
           : null,
+      scheduledHour: map['scheduled_hour'] as int?,
+      scheduledMinute: map['scheduled_minute'] as int?,
+      verificationKeywords: (map['verification_keywords'] as String?)
+              ?.split(',')
+              .where((s) => s.isNotEmpty)
+              .toList() ??
+          [],
     );
   }
 
@@ -118,6 +141,9 @@ class Task {
     DateTime? createdAt,
     DateTime? completedAt,
     DateTime? dueDate,
+    int? scheduledHour,
+    int? scheduledMinute,
+    List<String>? verificationKeywords,
   }) {
     return Task(
       id: id ?? this.id,
@@ -131,6 +157,10 @@ class Task {
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
       dueDate: dueDate ?? this.dueDate,
+      scheduledHour: scheduledHour ?? this.scheduledHour,
+      scheduledMinute: scheduledMinute ?? this.scheduledMinute,
+      verificationKeywords:
+          verificationKeywords ?? this.verificationKeywords,
     );
   }
 }

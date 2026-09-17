@@ -1,5 +1,7 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart';
 import '../models/task.dart';
 import '../models/journal_entry.dart';
 import '../models/achievement.dart';
@@ -18,6 +20,16 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
+    if (kIsWeb) {
+      final dbFactory = databaseFactoryFfiWeb;
+      return await dbFactory.openDatabase(
+        'dopamind.db',
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: _createDatabase,
+        ),
+      );
+    }
     String path = join(await getDatabasesPath(), 'dopamind.db');
     return await openDatabase(
       path,
@@ -39,7 +51,10 @@ class DatabaseService {
         photo_path TEXT,
         created_at TEXT NOT NULL,
         completed_at TEXT,
-        due_date TEXT
+        due_date TEXT,
+        scheduled_hour INTEGER,
+        scheduled_minute INTEGER,
+        verification_keywords TEXT DEFAULT ''
       )
     ''');
 

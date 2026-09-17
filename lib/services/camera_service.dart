@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 
 class CameraService {
   final ImagePicker _picker = ImagePicker();
@@ -11,10 +12,7 @@ class CameraService {
       maxHeight: 1024,
       imageQuality: 85,
     );
-    if (photo != null) {
-      return photo.path;
-    }
-    return null;
+    return photo?.path;
   }
 
   Future<String?> pickFromGallery() async {
@@ -24,61 +22,107 @@ class CameraService {
       maxHeight: 1024,
       imageQuality: 85,
     );
-    if (image != null) {
-      return image.path;
-    }
-    return null;
+    return image?.path;
   }
 
   Future<List<String>> analyzeImage(String imagePath) async {
-    // ML Kit image labeling - simplified version
-    // In production, use google_mlkit_image_labeling
-    final file = File(imagePath);
-    if (!await file.exists()) return [];
-
-    // Basic object detection keywords
-    return _detectObjectsFromPath(imagePath);
+    if (kIsWeb) {
+      return [];
+    }
+    return _analyzeWithMlKit(imagePath);
   }
 
-  List<String> _detectObjectsFromPath(String path) {
-    // Simplified detection based on file analysis
-    // Real implementation would use ML Kit
-    final lowerPath = path.toLowerCase();
-    final detected = <String>[];
+  Future<List<String>> _analyzeWithMlKit(String imagePath) async {
+    try {
+      final inputImage = InputImage.fromFilePath(imagePath);
 
-    if (lowerPath.contains('kitchen') || lowerPath.contains('cocina')) {
-      detected.addAll(['plato', 'vaso', 'cuchara', 'tenedor']);
-    }
-    if (lowerPath.contains('bath') || lowerPath.contains('baño')) {
-      detected.addAll(['jabón', 'toalla', 'cepillo']);
-    }
-    if (lowerPath.contains('bed') || lowerPath.contains('dormitorio')) {
-      detected.addAll(['cama', 'almohada', 'sábana']);
-    }
+      final options = ImageLabelerOptions(
+        confidenceThreshold: 0.5,
+      );
 
-    return detected;
+      final imageLabeler = ImageLabeler(options: options);
+      final labels = await imageLabeler.processImage(inputImage);
+      final detected = <String>[];
+
+      for (final label in labels) {
+        detected.add(label.label.toLowerCase());
+      }
+
+      await imageLabeler.close();
+      return detected;
+    } catch (e) {
+      debugPrint('ML Kit error: $e');
+      return [];
+    }
   }
 
-  bool verifyTaskCompletion(String taskTitle, List<String> detectedObjects) {
+  bool verifyTaskCompletion(
+    String taskTitle,
+    List<String> detectedObjects, {
+    List<String> taskKeywords = const [],
+  }) {
     final titleLower = taskTitle.toLowerCase();
 
-    final taskKeywords = {
-      'lavar': ['plato', 'vaso', 'cuchara', 'tenedor', 'taza', 'ollas', 'sartén'],
-      'loza': ['plato', 'vaso', 'cuchara', 'tenedor', 'taza'],
-      'platos': ['plato', 'vaso', 'cuchara', 'tenedor'],
-      'ropa': ['camisa', 'pantalón', 'calza', 'zapato', 'vestido'],
-      'dormir': ['cama', 'almohada', 'sábana', 'cobija'],
-      'baño': ['jabón', 'toalla', 'cepillo', 'shampoo'],
-      'cocina': ['refrigerador', 'microondas', 'horno', 'estufa'],
-      'comer': ['fruta', 'verdura', 'plato', 'tenedor'],
-      'ejercicio': ['pesas', 'mancuerna', 'colchoneta'],
-      'leer': ['libro', 'cuaderno', 'lápiz'],
+    // 1. Usar palabras clave personalizadas de la tarea (creadas por el usuario)
+    if (taskKeywords.isNotEmpty) {
+      for (final obj in detectedObjects) {
+        if (taskKeywords
+            .any((keyword) => obj.toLowerCase().contains(keyword.toLowerCase()))) {
+          return true;
+        }
+      }
+    }
+
+    // 2. Verificación inteligente por contexto de la tarea
+    final Map<String, List<String>> contextMap = {
+      'lavar': [
+        'plate', 'dish', 'dishes', 'cup', 'spoon', 'fork', 'bowl',
+        'plato', 'vaso', 'cuchara', 'tenedor', 'taza', 'olla', 'sarten',
+        'kitchen', 'sink', 'fregadero', 'lavabo'
+      ],
+      'loza': [
+        'plate', 'dish', 'cup', 'spoon', 'fork', 'bowl',
+        'plato', 'vaso', 'cuchara', 'tenedor', 'taza'
+      ],
+      'platos': [
+        'plate', 'dish', 'dishes', 'cup', 'spoon', 'fork',
+        'plato', 'vaso', 'cuchara', 'tenedor'
+      ],
+      'ropa': [
+        'clothing', 'shirt', 'pants', 'shoe', 'dress', 'fabric',
+        'camisa', 'pantalon', 'calza', 'zapato', 'vestido'
+      ],
+      'dormir': [
+        'bed', 'pillow', 'blanket', 'mattress',
+        'cama', 'almohada', 'sabana', 'cobija'
+      ],
+      'baño': [
+        'soap', 'towel', 'brush', 'shampoo', 'bathroom',
+        'jabon', 'toalla', 'cepillo'
+      ],
+      'cocina': [
+        'refrigerator', 'microwave', 'oven', 'stove', 'kitchen',
+        'refrigerador', 'microondas', 'horno', 'estufa'
+      ],
+      'comer': [
+        'food', 'fruit', 'vegetable', 'plate', 'fork', 'meal',
+        'fruta', 'verdura', 'plato', 'tenedor', 'comida'
+      ],
+      'ejercicio': [
+        'dumbbell', 'weight', 'yoga', 'mat', 'exercise', 'gym',
+        'pesa', 'mancuerna', 'colchoneta'
+      ],
+      'leer': [
+        'book', 'notebook', 'pen', 'pencil', 'reading',
+        'libro', 'cuaderno', 'lapiz'
+      ],
     };
 
-    for (final entry in taskKeywords.entries) {
+    for (final entry in contextMap.entries) {
       if (titleLower.contains(entry.key)) {
         for (final obj in detectedObjects) {
-          if (entry.value.any((keyword) => obj.toLowerCase().contains(keyword))) {
+          if (entry.value
+              .any((keyword) => obj.toLowerCase().contains(keyword))) {
             return true;
           }
         }
