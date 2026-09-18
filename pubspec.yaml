@@ -15,7 +15,7 @@ dependencies:
   sqflite_common_ffi_web: ^0.4.5
   path: ^1.9.0
   image_picker: ^1.1.2
-  google_mlkit_image_labeling: ^0.14.0
+  google_mlkit_image_labeling: ^0.16.1
   intl: ^0.20.2
   shared_preferences: ^2.5.3
   lottie: ^3.3.1
