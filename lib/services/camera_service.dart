@@ -6,23 +6,33 @@ class CameraService {
   final ImagePicker _picker = ImagePicker();
 
   Future<String?> takePhoto() async {
-    final XFile? photo = await _picker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 85,
-    );
-    return photo?.path;
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      return photo?.path;
+    } catch (e) {
+      debugPrint('Error taking photo: $e');
+      return null;
+    }
   }
 
   Future<String?> pickFromGallery() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 85,
-    );
-    return image?.path;
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      return image?.path;
+    } catch (e) {
+      debugPrint('Error picking from gallery: $e');
+      return null;
+    }
   }
 
   Future<List<String>> analyzeImage(String imagePath) async {

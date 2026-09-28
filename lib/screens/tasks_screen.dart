@@ -4,6 +4,8 @@ import '../models/task.dart';
 import '../models/predefined_tasks.dart';
 import '../services/app_provider.dart';
 import '../services/camera_service.dart';
+import '../services/notification_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/colors.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -86,7 +88,17 @@ class _TasksScreenState extends State<TasksScreen>
       verificationKeywords: _selectedKeywords,
     );
 
-    context.read<AppProvider>().addTask(task);
+    context.read<AppProvider>().addTask(task).then((_) {
+      if (_selectedTime != null) {
+        NotificationService().scheduleTaskNotification(
+          taskId: task.title.hashCode,
+          title: task.title,
+          description: task.description ?? '',
+          hour: _selectedTime!.hour,
+          minute: _selectedTime!.minute,
+        );
+      }
+    });
     Navigator.pop(context);
     _titleController.clear();
     _descController.clear();
@@ -135,8 +147,24 @@ class _TasksScreenState extends State<TasksScreen>
 
     String? imagePath;
     if (source == 'camera') {
+      final status = await Permission.camera.request();
+      if (status.isDenied || status.isPermanentlyDenied) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Necesitas dar permiso de cámara en Configuración'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
       imagePath = await _cameraService.takePhoto();
     } else {
+      final status = await Permission.photos.request();
+      if (status.isDenied || status.isPermanentlyDenied) {
+        final storageStatus = await Permission.storage.request();
+        if (storageStatus.isDenied && !mounted) return;
+      }
       imagePath = await _cameraService.pickFromGallery();
     }
 
@@ -450,6 +478,7 @@ class _TasksScreenState extends State<TasksScreen>
         child: const Icon(Icons.delete_rounded, color: Colors.white),
       ),
       onDismissed: (direction) {
+        NotificationService().cancelNotification(task.title.hashCode);
         context.read<AppProvider>().deleteTask(task.id!);
       },
       child: Container(
@@ -470,7 +499,10 @@ class _TasksScreenState extends State<TasksScreen>
           children: [
             if (!completed)
               GestureDetector(
-                onTap: () => context.read<AppProvider>().completeTask(task),
+                onTap: () {
+                  NotificationService().cancelNotification(task.title.hashCode);
+                  context.read<AppProvider>().completeTask(task);
+                },
                 child: Container(
                   width: 24,
                   height: 24,

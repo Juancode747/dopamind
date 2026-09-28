@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'services/app_provider.dart';
 import 'services/timer_service.dart';
+import 'services/notification_service.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/tasks_screen.dart';
@@ -23,6 +24,7 @@ void main() async {
   ));
 
   final prefs = await SharedPreferences.getInstance();
+  await NotificationService().init();
   runApp(MyApp(prefs: prefs));
 }
 
