@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../services/app_provider.dart';
 import '../utils/colors.dart';
 
@@ -27,7 +28,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _OnboardingPage(
       icon: Icons.task_alt_outlined,
       title: 'Gestiona tus Tareas',
-      subtitle: 'Organiza tu día con prioridades y verifica tus logros con fotos',
+      subtitle:
+          'Organiza tu día con prioridades y verifica tus logros con fotos',
       color: AppColors.secondary,
     ),
     _OnboardingPage(
@@ -51,9 +53,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -91,10 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              page.color.withOpacity(0.1),
-              AppColors.background,
-            ],
+            colors: [page.color.withOpacity(0.1), AppColors.background],
           ),
         ),
         child: SafeArea(
@@ -127,11 +127,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               color: page.color.withOpacity(0.15),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
-                              page.icon,
-                              size: 60,
-                              color: page.color,
-                            ),
+                            child: Icon(page.icon, size: 60, color: page.color),
                           ),
                           const SizedBox(height: 40),
                           Text(

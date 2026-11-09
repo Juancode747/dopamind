@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 class TimerService extends ChangeNotifier {
@@ -19,8 +20,9 @@ class TimerService extends ChangeNotifier {
   int get pomodoroSession => _pomodoroSession;
   bool get isBreak => _isBreak;
 
-  double get progress =>
-      _totalSeconds > 0 ? (_totalSeconds - _remainingSeconds) / _totalSeconds : 0;
+  double get progress => _totalSeconds > 0
+      ? (_totalSeconds - _remainingSeconds) / _totalSeconds
+      : 0;
 
   String get formattedTime {
     final minutes = _remainingSeconds ~/ 60;
@@ -44,15 +46,15 @@ class TimerService extends ChangeNotifier {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
-        notifyListeners();
-      } else {
+      }
+      if (_remainingSeconds == 0) {
         _timer?.cancel();
         _isRunning = false;
         if (_currentMode == 'pomodoro') {
           _handlePomodoroComplete();
         }
-        notifyListeners();
       }
+      notifyListeners();
     });
   }
 
@@ -67,6 +69,7 @@ class TimerService extends ChangeNotifier {
     _isPaused = false;
     _isRunning = true;
     _startCountdown();
+    notifyListeners();
   }
 
   void stopTimer() {

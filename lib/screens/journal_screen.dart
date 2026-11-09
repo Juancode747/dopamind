@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/journal_entry.dart';
 import '../services/app_provider.dart';
 import '../utils/colors.dart';
@@ -41,9 +42,8 @@ class _JournalScreenState extends State<JournalScreen> {
 
   void _showAddEntrySheet() {
     final randomPrompt =
-        AppConstants.journalPrompts[
-            (DateTime.now().millisecondsSinceEpoch %
-                AppConstants.journalPrompts.length)];
+        AppConstants.journalPrompts[(DateTime.now().millisecondsSinceEpoch %
+            AppConstants.journalPrompts.length)];
 
     showModalBottomSheet(
       context: context,
@@ -80,10 +80,7 @@ class _JournalScreenState extends State<JournalScreen> {
                   const SizedBox(height: 16),
                   const Text(
                     'Nueva Reflexión',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -94,8 +91,11 @@ class _JournalScreenState extends State<JournalScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.lightbulb_outline,
-                            color: AppColors.journal, size: 20),
+                        const Icon(
+                          Icons.lightbulb_outline,
+                          color: AppColors.journal,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -122,8 +122,7 @@ class _JournalScreenState extends State<JournalScreen> {
                       final isSelected = _selectedMood == mood;
                       final emojis = ['😞', '😟', '😐', '🙂', '😊'];
                       return GestureDetector(
-                        onTap: () =>
-                            setModalState(() => _selectedMood = mood),
+                        onTap: () => setModalState(() => _selectedMood = mood),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -144,8 +143,7 @@ class _JournalScreenState extends State<JournalScreen> {
                           child: Center(
                             child: Text(
                               emojis[index],
-                              style: TextStyle(
-                                  fontSize: isSelected ? 28 : 24),
+                              style: TextStyle(fontSize: isSelected ? 28 : 24),
                             ),
                           ),
                         ),
@@ -214,11 +212,13 @@ class _JournalScreenState extends State<JournalScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Mi Diario',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: Text(
+                      'Mi Diario',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -330,9 +330,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     children: [
                       Text(
                         entry.moodLabel,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         dateStr,
@@ -367,10 +365,7 @@ class _JournalScreenState extends State<JournalScreen> {
             const SizedBox(height: 8),
             Text(
               entry.content,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 15, height: 1.5),
             ),
           ],
         ),

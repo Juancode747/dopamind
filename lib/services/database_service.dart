@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/task.dart';
 import '../models/journal_entry.dart';
 import '../models/achievement.dart';
@@ -25,18 +26,35 @@ class DatabaseService {
       return await dbFactory.openDatabase(
         'dopamind.db',
         options: OpenDatabaseOptions(
-          version: 1,
+          version: 2,
           onCreate: _createDatabase,
+          onUpgrade: _upgradeDatabase,
         ),
       );
     }
     String path = join(await getDatabasesPath(), 'dopamind.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDatabase,
+      onUpgrade: _upgradeDatabase,
     );
   }
+
+  static Future<void> upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    if (oldVersion < 2) {
+      await db.execute(
+        'ALTER TABLE tasks ADD COLUMN alarm_enabled INTEGER DEFAULT 0',
+      );
+    }
+  }
+
+  Future<void> _upgradeDatabase(Database db, int oldVersion, int newVersion) =>
+      upgradeSchema(db, oldVersion, newVersion);
 
   Future<void> _createDatabase(Database db, int version) async {
     await db.execute('''
@@ -47,6 +65,7 @@ class DatabaseService {
         priority TEXT DEFAULT 'medium',
         category TEXT DEFAULT 'general',
         completed INTEGER DEFAULT 0,
+        alarm_enabled INTEGER DEFAULT 0,
         photo_verified INTEGER DEFAULT 0,
         photo_path TEXT,
         created_at TEXT NOT NULL,
@@ -97,18 +116,90 @@ class DatabaseService {
 
   Future<void> _seedAchievements(Database db) async {
     final achievements = [
-      {'key': 'first_task', 'title': 'Primera Tarea', 'description': 'Completa tu primera tarea', 'icon': '✓', 'required_value': 1},
-      {'key': 'streak_3', 'title': 'Racha de 3', 'description': '3 días consecutivos activo', 'icon': '🔥', 'required_value': 3},
-      {'key': 'streak_7', 'title': 'Racha de 7', 'description': '7 días consecutivos activo', 'icon': '🌟', 'required_value': 7},
-      {'key': 'streak_30', 'title': 'Racha de 30', 'description': '30 días consecutivos activo', 'icon': '👑', 'required_value': 30},
-      {'key': 'mindful_1', 'title': 'Primera Sesión', 'description': 'Primera sesión de atención plena', 'icon': '🧘', 'required_value': 1},
-      {'key': 'mindful_10', 'title': 'Mente Plena', 'description': '10 sesiones de atención plena', 'icon': '🧠', 'required_value': 10},
-      {'key': 'focus_1', 'title': 'Enfocado', 'description': 'Primera sesión de enfoque', 'icon': '🎯', 'required_value': 1},
-      {'key': 'focus_10', 'title': 'Maestro del Enfoque', 'description': '10 sesiones de enfoque', 'icon': '🏆', 'required_value': 10},
-      {'key': 'journal_1', 'title': 'Primeras Palabras', 'description': 'Escribe tu primera entrada', 'icon': '📝', 'required_value': 1},
-      {'key': 'journal_7', 'title': 'Escritor', 'description': '7 entradas en el diario', 'icon': '📖', 'required_value': 7},
-      {'key': 'photo_verify', 'title': 'Verificador', 'description': 'Verifica una tarea con foto', 'icon': '📸', 'required_value': 1},
-      {'key': 'tasks_50', 'title': 'Super Productivo', 'description': 'Completa 50 tareas', 'icon': '🚀', 'required_value': 50},
+      {
+        'key': 'first_task',
+        'title': 'Primera Tarea',
+        'description': 'Completa tu primera tarea',
+        'icon': '✓',
+        'required_value': 1,
+      },
+      {
+        'key': 'streak_3',
+        'title': 'Racha de 3',
+        'description': '3 días consecutivos activo',
+        'icon': '🔥',
+        'required_value': 3,
+      },
+      {
+        'key': 'streak_7',
+        'title': 'Racha de 7',
+        'description': '7 días consecutivos activo',
+        'icon': '🌟',
+        'required_value': 7,
+      },
+      {
+        'key': 'streak_30',
+        'title': 'Racha de 30',
+        'description': '30 días consecutivos activo',
+        'icon': '👑',
+        'required_value': 30,
+      },
+      {
+        'key': 'mindful_1',
+        'title': 'Primera Sesión',
+        'description': 'Primera sesión de atención plena',
+        'icon': '🧘',
+        'required_value': 1,
+      },
+      {
+        'key': 'mindful_10',
+        'title': 'Mente Plena',
+        'description': '10 sesiones de atención plena',
+        'icon': '🧠',
+        'required_value': 10,
+      },
+      {
+        'key': 'focus_1',
+        'title': 'Enfocado',
+        'description': 'Primera sesión de enfoque',
+        'icon': '🎯',
+        'required_value': 1,
+      },
+      {
+        'key': 'focus_10',
+        'title': 'Maestro del Enfoque',
+        'description': '10 sesiones de enfoque',
+        'icon': '🏆',
+        'required_value': 10,
+      },
+      {
+        'key': 'journal_1',
+        'title': 'Primeras Palabras',
+        'description': 'Escribe tu primera entrada',
+        'icon': '📝',
+        'required_value': 1,
+      },
+      {
+        'key': 'journal_7',
+        'title': 'Escritor',
+        'description': '7 entradas en el diario',
+        'icon': '📖',
+        'required_value': 7,
+      },
+      {
+        'key': 'photo_verify',
+        'title': 'Verificador',
+        'description': 'Verifica una tarea con foto',
+        'icon': '📸',
+        'required_value': 1,
+      },
+      {
+        'key': 'tasks_50',
+        'title': 'Super Productivo',
+        'description': 'Completa 50 tareas',
+        'icon': '🚀',
+        'required_value': 50,
+      },
     ];
 
     for (final a in achievements) {
@@ -156,7 +247,12 @@ class DatabaseService {
 
   Future<void> updateTask(Task task) async {
     final db = await database;
-    await db.update('tasks', task.toMap(), where: 'id = ?', whereArgs: [task.id]);
+    await db.update(
+      'tasks',
+      task.toMap(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
   }
 
   Future<void> deleteTask(int id) async {
@@ -166,7 +262,9 @@ class DatabaseService {
 
   Future<int> getCompletedTasksCount() async {
     final db = await database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM tasks WHERE completed = 1');
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM tasks WHERE completed = 1',
+    );
     return result.first['count'] as int;
   }
 
@@ -199,7 +297,9 @@ class DatabaseService {
 
   Future<int> getJournalCount() async {
     final db = await database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM journal_entries');
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM journal_entries',
+    );
     return result.first['count'] as int;
   }
 
@@ -222,7 +322,11 @@ class DatabaseService {
 
   Future<Achievement?> getAchievement(String key) async {
     final db = await database;
-    final maps = await db.query('achievements', where: 'key = ?', whereArgs: [key]);
+    final maps = await db.query(
+      'achievements',
+      where: 'key = ?',
+      whereArgs: [key],
+    );
     if (maps.isEmpty) return null;
     return Achievement.fromMap(maps.first);
   }

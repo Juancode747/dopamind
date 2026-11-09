@@ -7,6 +7,7 @@ class Task {
   final String priority;
   final String category;
   final bool completed;
+  final bool alarmEnabled;
   final bool photoVerified;
   final String? photoPath;
   final DateTime createdAt;
@@ -23,6 +24,7 @@ class Task {
     this.priority = 'medium',
     this.category = 'general',
     this.completed = false,
+    this.alarmEnabled = false,
     this.photoVerified = false,
     this.photoPath,
     DateTime? createdAt,
@@ -38,6 +40,14 @@ class Task {
     final h = scheduledHour!.toString().padLeft(2, '0');
     final m = scheduledMinute!.toString().padLeft(2, '0');
     return '$h:$m';
+  }
+
+  String get scheduledLabel {
+    final date = dueDate;
+    if (date == null) return scheduledTime;
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day/$month/${date.year} · $scheduledTime';
   }
 
   Color get priorityColor {
@@ -91,6 +101,7 @@ class Task {
       'priority': priority,
       'category': category,
       'completed': completed ? 1 : 0,
+      'alarm_enabled': alarmEnabled ? 1 : 0,
       'photo_verified': photoVerified ? 1 : 0,
       'photo_path': photoPath,
       'created_at': createdAt.toIso8601String(),
@@ -110,6 +121,7 @@ class Task {
       priority: map['priority'] as String? ?? 'medium',
       category: map['category'] as String? ?? 'general',
       completed: (map['completed'] as int?) == 1,
+      alarmEnabled: (map['alarm_enabled'] as int?) == 1,
       photoVerified: (map['photo_verified'] as int?) == 1,
       photoPath: map['photo_path'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -121,7 +133,8 @@ class Task {
           : null,
       scheduledHour: map['scheduled_hour'] as int?,
       scheduledMinute: map['scheduled_minute'] as int?,
-      verificationKeywords: (map['verification_keywords'] as String?)
+      verificationKeywords:
+          (map['verification_keywords'] as String?)
               ?.split(',')
               .where((s) => s.isNotEmpty)
               .toList() ??
@@ -136,6 +149,7 @@ class Task {
     String? priority,
     String? category,
     bool? completed,
+    bool? alarmEnabled,
     bool? photoVerified,
     String? photoPath,
     DateTime? createdAt,
@@ -152,6 +166,7 @@ class Task {
       priority: priority ?? this.priority,
       category: category ?? this.category,
       completed: completed ?? this.completed,
+      alarmEnabled: alarmEnabled ?? this.alarmEnabled,
       photoVerified: photoVerified ?? this.photoVerified,
       photoPath: photoPath ?? this.photoPath,
       createdAt: createdAt ?? this.createdAt,
@@ -159,8 +174,7 @@ class Task {
       dueDate: dueDate ?? this.dueDate,
       scheduledHour: scheduledHour ?? this.scheduledHour,
       scheduledMinute: scheduledMinute ?? this.scheduledMinute,
-      verificationKeywords:
-          verificationKeywords ?? this.verificationKeywords,
+      verificationKeywords: verificationKeywords ?? this.verificationKeywords,
     );
   }
 }

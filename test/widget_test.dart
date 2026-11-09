@@ -9,6 +9,6 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(MyApp(prefs: prefs));
     await tester.pumpAndSettle();
-    expect(find.text('DopamiND'), findsWidgets);
+    expect(find.text('Bienvenido a DopamiND'), findsOneWidget);
   });
 }

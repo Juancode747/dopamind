@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/task.dart';
 import '../models/journal_entry.dart';
 import '../models/achievement.dart';
 import '../services/database_service.dart';
+import 'notification_service.dart';
 
 class AppProvider extends ChangeNotifier {
-  final DatabaseService _db = DatabaseService();
+  final DatabaseService _db;
   final SharedPreferences _prefs;
+  late final Future<void> ready;
 
   List<Task> _tasks = [];
   List<JournalEntry> _journalEntries = [];
@@ -17,8 +20,9 @@ class AppProvider extends ChangeNotifier {
   int _currentStreak = 0;
   bool _onboardingCompleted = false;
 
-  AppProvider(this._prefs) {
-    _loadData();
+  AppProvider(this._prefs, {DatabaseService? database})
+    : _db = database ?? DatabaseService() {
+    ready = _loadData();
   }
 
   List<Task> get tasks => _tasks;
@@ -36,12 +40,16 @@ class AppProvider extends ChangeNotifier {
 
   int get todayCompletedCount {
     final today = DateTime.now();
-    return _tasks.where((t) =>
-        t.completed &&
-        t.completedAt != null &&
-        t.completedAt!.year == today.year &&
-        t.completedAt!.month == today.month &&
-        t.completedAt!.day == today.day).length;
+    return _tasks
+        .where(
+          (t) =>
+              t.completed &&
+              t.completedAt != null &&
+              t.completedAt!.year == today.year &&
+              t.completedAt!.month == today.month &&
+              t.completedAt!.day == today.day,
+        )
+        .length;
   }
 
   int get totalCompletedCount => _tasks.where((t) => t.completed).length;
@@ -59,6 +67,7 @@ class AppProvider extends ChangeNotifier {
     _achievements = await _db.getAchievements();
 
     _checkStreak();
+    await _restoreReminders();
     notifyListeners();
   }
 
@@ -73,9 +82,11 @@ class AppProvider extends ChangeNotifier {
 
     final lastDate = DateTime.parse(lastActive);
     final today = DateTime.now();
-    final difference = DateTime(today.year, today.month, today.day)
-        .difference(DateTime(lastDate.year, lastDate.month, lastDate.day))
-        .inDays;
+    final difference = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    ).difference(DateTime(lastDate.year, lastDate.month, lastDate.day)).inDays;
 
     if (difference == 1) {
       _currentStreak++;
@@ -101,34 +112,108 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTask(Task task) async {
+  Future<Task> addTask(Task task) async {
     final id = await _db.insertTask(task);
-    _tasks.insert(0, task.copyWith(id: id));
+    final saved = task.copyWith(id: id);
+    _tasks.insert(0, saved);
     notifyListeners();
+    return saved;
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> _restoreReminders() async {
+    final notifications = NotificationService();
+    if (!notifications.isInitialized) return;
+    try {
+      if (_prefs.getBool('dated_reminders_v2') != true) {
+        // Remove the old hash-based repeating reminders once.
+        await notifications.cancelAllNotifications();
+        for (var index = 0; index < _tasks.length; index++) {
+          final task = _tasks[index];
+          if (!task.completed &&
+              task.dueDate == null &&
+              task.scheduledHour != null) {
+            final now = DateTime.now();
+            var date = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              task.scheduledHour!,
+              task.scheduledMinute ?? 0,
+            );
+            if (!date.isAfter(now))
+              date = DateTime(
+                now.year,
+                now.month,
+                now.day + 1,
+                task.scheduledHour!,
+                task.scheduledMinute ?? 0,
+              );
+            final updated = task.copyWith(dueDate: date);
+            await _db.updateTask(updated);
+            _tasks[index] = updated;
+          }
+        }
+        await _prefs.setBool('dated_reminders_v2', true);
+      }
+      final pending = await notifications.pendingIds();
+      // A previous save may have succeeded while cancelling its alarm failed.
+      // Retry from the persisted task state after restarting the app.
+      for (final task in _tasks.where((t) => t.completed)) {
+        if (task.id != null && pending.contains(task.id)) {
+          await _cancelCompletedReminder(task.id!);
+        }
+      }
+      for (final task in _tasks) {
+        if (!task.completed &&
+            task.id != null &&
+            task.dueDate != null &&
+            task.dueDate!.isAfter(DateTime.now()) &&
+            !pending.contains(task.id)) {
+          await notifications.scheduleTask(task, requestPermissions: false);
+        }
+      }
+    } catch (error) {
+      debugPrint('No se pudieron restaurar los recordatorios: $error');
+    }
+  }
+
+  /// Returns false only when the task was saved but its reminder could not
+  /// be cancelled. Database failures still propagate to the caller.
+  Future<bool> updateTask(Task task) async {
     await _db.updateTask(task);
     final index = _tasks.indexWhere((t) => t.id == task.id);
     if (index != -1) {
       _tasks[index] = task;
     }
     notifyListeners();
+    if (task.completed && task.id != null) {
+      return _cancelCompletedReminder(task.id!);
+    }
+    return true;
   }
 
-  Future<void> completeTask(Task task) async {
-    final updated = task.copyWith(
-      completed: true,
-      completedAt: DateTime.now(),
-    );
-    await updateTask(updated);
+  Future<bool> _cancelCompletedReminder(int id) async {
+    try {
+      await NotificationService().cancelNotification(id);
+      return true;
+    } catch (error) {
+      debugPrint('Tarea guardada; no se pudo cancelar el aviso: $error');
+      return false;
+    }
+  }
+
+  Future<bool> completeTask(Task task) async {
+    final updated = task.copyWith(completed: true, completedAt: DateTime.now());
+    final reminderCancelled = await updateTask(updated);
     _addPoints(10);
     await _db.incrementAchievement('first_task');
     await _db.incrementAchievement('tasks_50');
     notifyListeners();
+    return reminderCancelled;
   }
 
   Future<void> deleteTask(int id) async {
+    await NotificationService().cancelNotification(id);
     await _db.deleteTask(id);
     _tasks.removeWhere((t) => t.id == id);
     notifyListeners();

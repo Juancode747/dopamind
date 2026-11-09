@@ -1,5 +1,8 @@
+import '../widgets/session_body.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../services/timer_service.dart';
 import '../services/app_provider.dart';
 import '../utils/colors.dart';
@@ -45,6 +48,7 @@ class _FocusScreenState extends State<FocusScreen>
   }
 
   void _endSession() {
+    if (!mounted || !_sessionStarted) return;
     final timerService = context.read<TimerService>();
     final provider = context.read<AppProvider>();
     final elapsed = timerService.elapsedMinutes;
@@ -58,67 +62,73 @@ class _FocusScreenState extends State<FocusScreen>
   Widget build(BuildContext context) {
     final timerService = context.watch<TimerService>();
 
-    if (_sessionStarted && !timerService.isRunning && timerService.remainingSeconds == 0) {
+    if (_sessionStarted &&
+        !timerService.isRunning &&
+        timerService.remainingSeconds == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_sessionStarted) return;
         _showCompletionDialog(timerService.elapsedMinutes);
         _endSession();
       });
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.focusMode,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      if (_sessionStarted) _endSession();
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back_ios_rounded),
-                    color: Colors.white,
-                  ),
-                  const Text(
-                    'Modo Enfoque',
-                    style: TextStyle(
+    return PopScope<void>(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop && _sessionStarted) _endSession();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.focusMode,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (_sessionStarted) _endSession();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_rounded),
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
+                    const Expanded(
+                      child: Text(
+                        'Modo Enfoque',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: _sessionStarted
-                  ? _buildActiveSession(timerService)
-                  : _buildSessionSetup(),
-            ),
-          ],
+              Expanded(
+                child: _sessionStarted
+                    ? _buildActiveSession(timerService)
+                    : _buildSessionSetup(),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSessionSetup() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SessionBody(
       child: Column(
         children: [
           const Spacer(),
           AnimatedBuilder(
             animation: _pulseAnimation,
             builder: (context, child) {
-              return Transform.scale(
-                scale: 1.0,
-                child: child,
-              );
+              return Transform.scale(scale: 1.0, child: child);
             },
             child: Container(
               width: 140,
@@ -158,14 +168,12 @@ class _FocusScreenState extends State<FocusScreen>
           const Text(
             'Activa el modo Pomodoro para\ntrabajar sin distracciones',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 15,
-            ),
+            style: TextStyle(color: Colors.white54, fontSize: 15),
           ),
           const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            runSpacing: 8,
             children: [15, 25, 30, 45, 60].map((min) {
               final isSelected = _selectedMinutes == min;
               return GestureDetector(
@@ -191,8 +199,9 @@ class _FocusScreenState extends State<FocusScreen>
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -240,8 +249,7 @@ class _FocusScreenState extends State<FocusScreen>
   }
 
   Widget _buildActiveSession(TimerService timerService) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SessionBody(
       child: Column(
         children: [
           const Spacer(),
@@ -310,10 +318,7 @@ class _FocusScreenState extends State<FocusScreen>
                 ? '¡Descansa un momento!\nVuelve con energías'
                 : 'Mantén el enfoque\nEstás haciendo un gran trabajo',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 15,
-            ),
+            style: const TextStyle(color: Colors.white54, fontSize: 15),
           ),
           const Spacer(),
           Row(
@@ -357,10 +362,7 @@ class _FocusScreenState extends State<FocusScreen>
                   _dndEnabled
                       ? 'Modo No Molestar activado'
                       : 'Notificaciones activas',
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(color: Colors.white54, fontSize: 13),
                 ),
               ],
             ),
@@ -371,8 +373,11 @@ class _FocusScreenState extends State<FocusScreen>
     );
   }
 
-  Widget _buildControlButton(IconData icon, VoidCallback onTap,
-      {bool isStop = false}) {
+  Widget _buildControlButton(
+    IconData icon,
+    VoidCallback onTap, {
+    bool isStop = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

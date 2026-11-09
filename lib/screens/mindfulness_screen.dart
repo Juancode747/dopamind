@@ -1,9 +1,13 @@
+import '../widgets/session_body.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../services/timer_service.dart';
 import '../services/app_provider.dart';
 import '../utils/colors.dart';
 import '../utils/constants.dart';
+import '../models/breathing_cycle.dart';
 
 class MindfulnessScreen extends StatefulWidget {
   const MindfulnessScreen({super.key});
@@ -12,46 +16,25 @@ class MindfulnessScreen extends StatefulWidget {
   State<MindfulnessScreen> createState() => _MindfulnessScreenState();
 }
 
-class _MindfulnessScreenState extends State<MindfulnessScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _breathController;
-  late Animation<double> _breathAnimation;
+class _MindfulnessScreenState extends State<MindfulnessScreen> {
   int _selectedMinutes = 5;
   String _selectedMode = 'respiracion';
   bool _sessionStarted = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _breathController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    );
-    _breathAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _breathController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _breathController.dispose();
-    super.dispose();
-  }
 
   void _startSession() {
     final timerService = context.read<TimerService>();
     timerService.startTimer(_selectedMinutes, mode: 'mindfulness');
     setState(() => _sessionStarted = true);
-    _breathController.repeat(reverse: true);
   }
 
   void _endSession() {
+    if (!mounted || !_sessionStarted) return;
     final timerService = context.read<TimerService>();
     final provider = context.read<AppProvider>();
     final elapsed = timerService.elapsedMinutes;
     provider.addMindfulSession(elapsed > 0 ? elapsed : 1);
     timerService.stopTimer();
-    _breathController.stop();
+
     setState(() => _sessionStarted = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -68,56 +51,64 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
   Widget build(BuildContext context) {
     final timerService = context.watch<TimerService>();
 
-    if (_sessionStarted && !timerService.isRunning && timerService.remainingSeconds == 0) {
+    if (_sessionStarted &&
+        !timerService.isRunning &&
+        timerService.remainingSeconds == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _endSession();
       });
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.focusMode,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      if (_sessionStarted) _endSession();
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back_ios_rounded),
-                    color: Colors.white,
-                  ),
-                  const Text(
-                    'Atención Plena',
-                    style: TextStyle(
+    return PopScope<void>(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop && _sessionStarted) _endSession();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.focusMode,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (_sessionStarted) _endSession();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_rounded),
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
+                    const Expanded(
+                      child: Text(
+                        'Atención Plena',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: _sessionStarted
-                  ? _buildActiveSession(timerService)
-                  : _buildSessionSetup(),
-            ),
-          ],
+              Expanded(
+                child: _sessionStarted
+                    ? _buildActiveSession(timerService)
+                    : _buildSessionSetup(),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSessionSetup() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SessionBody(
       child: Column(
         children: [
           const Spacer(),
@@ -154,27 +145,25 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
             ),
           ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
             children: [
               _buildModeChip('Respiración', 'respiracion', Icons.air),
-              const SizedBox(width: 12),
               _buildModeChip('Escaneo', 'escaneo', Icons.accessibility_new),
-              const SizedBox(width: 12),
               _buildModeChip('Gratitud', 'gratitud', Icons.favorite),
             ],
           ),
           const SizedBox(height: 32),
           const Text(
             'Duración',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 16),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            runSpacing: 8,
             children: [3, 5, 10, 15, 20].map((min) {
               final isSelected = _selectedMinutes == min;
               return GestureDetector(
@@ -200,8 +189,9 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -266,24 +256,26 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
 
   Widget _buildActiveSession(TimerService timerService) {
     final prompts = AppConstants.mindfulnessPrompts[_selectedMode] ?? [];
-    final currentPromptIndex =
-        (timerService.progress * prompts.length).floor().clamp(0, prompts.length - 1);
-    final currentPrompt =
-        prompts.isNotEmpty ? prompts[currentPromptIndex] : '';
+    final currentPromptIndex = prompts.isEmpty
+        ? 0
+        : (timerService.progress * prompts.length).floor().clamp(
+            0,
+            prompts.length - 1,
+          );
+    final breath = BreathingCycle(timerService.elapsedSeconds);
+    final currentPrompt = _selectedMode == 'respiracion'
+        ? breath.prompt
+        : (prompts.isNotEmpty ? prompts[currentPromptIndex] : '');
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SessionBody(
       child: Column(
         children: [
           const Spacer(),
-          AnimatedBuilder(
-            animation: _breathAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _breathAnimation.value,
-                child: child,
-              );
-            },
+          AnimatedScale(
+            scale: _selectedMode == 'respiracion' ? breath.scale : 1,
+            duration: timerService.isPaused
+                ? Duration.zero
+                : const Duration(seconds: 1),
             child: Container(
               width: 200,
               height: 200,
@@ -329,7 +321,7 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
             duration: const Duration(milliseconds: 500),
             child: Text(
               currentPrompt,
-              key: ValueKey(currentPromptIndex),
+              key: ValueKey(currentPrompt),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -366,8 +358,11 @@ class _MindfulnessScreenState extends State<MindfulnessScreen>
     );
   }
 
-  Widget _buildControlButton(IconData icon, VoidCallback onTap,
-      {bool isStop = false}) {
+  Widget _buildControlButton(
+    IconData icon,
+    VoidCallback onTap, {
+    bool isStop = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

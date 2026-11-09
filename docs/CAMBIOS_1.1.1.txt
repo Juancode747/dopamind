@@ -1,0 +1,35 @@
+DOPAMIND 1.1.1 (3) — CORRECCIÓN DE FOTOS Y AVISOS
+
+Instala dopamind-1.1.1.apk encima de la versión anterior de este chat. No desinstales ni borres los datos de la app. Esta actualización conserva el identificador y la clave de firma de los APK anteriores.
+
+CAUSA ENCONTRADA
+El APK 1.1.0 perdía durante la optimización R8 la firma genérica que Gson necesita para leer la lista de notificaciones. La inspección de sus clases DEX confirmó que la subclase TypeToken utilizada por el complemento no conservaba esa información. Esto afecta tanto a programar como a cancelar avisos.
+Al confirmar una foto, la tarea se guardaba en SQLite y después se intentaba cancelar su aviso. Si esa cancelación fallaba, la pantalla no actualizaba su lista y mostraba un mensaje erróneo de cámara. No era una prueba de que la cámara o el reconocimiento hubieran fallado.
+
+CORRECCIONES
+- Reglas ProGuard/R8 para conservar la información utilizada por Gson en flutter_local_notifications 18.
+- El guardado de tareas/fotos actualiza la pantalla antes de cancelar su aviso.
+- Un fallo al cancelar un aviso ya no se informa como fallo de cámara: se indica que la tarea se guardó y que el aviso podría sonar todavía.
+- Al iniciar, se vuelven a cancelar los avisos pendientes de tareas que ya están completadas.
+- Los errores al abrir, leer o guardar una imagen se distinguen por etapa. Los errores de programación y de fotos ofrecen Detalles y Copiar para poder diagnosticarlos.
+- Se mantienen la barra de navegación, respiración y recordatorios con fecha de la versión 1.1.0.
+
+VALIDACIÓN
+15 pruebas Flutter aprobadas, incluida confirmación con vista previa, almacenamiento de foto y fallo simulado al cancelar un aviso; además, fallo de base de datos y reintento de cancelación al reiniciar.
+flutter analyze: sin errores ni advertencias; 54 notas informativas preexistentes de estilo y APIs obsoletas.
+Se incluye tool/check_apk_signatures.py para comprobar los metadatos genéricos en el APK release real, sin simular el complemento. Ejecutar: python tool/check_apk_signatures.py build/app/outputs/flutter-apk/app-release.apk
+No se ha probado físicamente este APK en el teléfono del usuario.
+
+COMPROBACIÓN EN TU TELÉFONO
+1. Abre la actualización y revisa Hechas: algunas fotos de intentos anteriores pueden estar guardadas allí.
+2. Programa una tarea para unos minutos después y comprueba que se confirma la programación. Acepta los permisos de notificación/alarma si Android los pide.
+3. Toma una foto, acepta la captura y confirma la tarea dentro de Dopamind. Debe pasar a Hechas y permitir abrir la foto guardada.
+4. Si aparece un nuevo error, usa Detalles > Copiar. No borres los datos para intentar resolverlo.
+
+RECONOCIMIENTO DE TAREAS
+El modelo actual reconoce objetos y muestra coincidencias; no clasifica de manera fiable loza limpia/sucia ni demuestra que se haya hecho la tarea. Esta versión no incluye un modelo entrenado para limpieza. Para esa función se puede evaluar un modelo especializado o adaptar uno preentrenado con fotos etiquetadas, incluyendo casos dudosos y pruebas con cocinas distintas. Una comparación antes/después puede aportar más evidencia, pero la confirmación humana sigue siendo necesaria cuando la imagen no permite decidir.
+Las fotos de esta app siguen procesándose localmente; no se añadió ningún servicio externo.
+Referencia: https://developers.google.com/ml-kit/vision/image-labeling
+
+FUENTES
+El ZIP contiene código y pruebas; no incluye SDK, cachés ni claves de firma. Compilación: Flutter 3.47.7, Dart 3.13.5, Java 17. Ejecutar flutter pub get, flutter test, flutter build apk --release. Para generar futuras actualizaciones con la misma firma hace falta conservar la clave de firma local usada en este equipo.

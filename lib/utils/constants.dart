@@ -20,9 +20,8 @@ class AppConstants {
   static const Map<String, List<String>> mindfulnessPrompts = {
     'respiracion': [
       'Inhala durante 4 segundos',
-      'Mantén el aire 4 segundos',
       'Exhala lentamente en 6 segundos',
-      'Repite el ciclo 10 veces',
+      'Repite el ciclo hasta terminar la sesión',
     ],
     'escaneo': [
       'Cierra los ojos y relaja el cuerpo',

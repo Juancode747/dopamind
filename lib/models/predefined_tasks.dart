@@ -26,9 +26,27 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🍽️',
       verificationKeywords: [
-        'plate', 'dish', 'dishes', 'cup', 'spoon', 'fork', 'bowl',
-        'plato', 'vaso', 'cuchara', 'tenedor', 'taza', 'sarten', 'olla',
-        'kitchen', 'sink', 'fregadero', 'lavabo'
+        'plate',
+        'dish',
+        'dishes',
+        'cup',
+        'spoon',
+        'fork',
+        'bowl',
+        'tableware',
+        'dishware',
+        'cutlery',
+        'plato',
+        'vaso',
+        'cuchara',
+        'tenedor',
+        'taza',
+        'sarten',
+        'olla',
+        'kitchen',
+        'sink',
+        'fregadero',
+        'lavabo',
       ],
     ),
     PredefinedTask(
@@ -38,9 +56,18 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🛏️',
       verificationKeywords: [
-        'bed', 'pillow', 'blanket', 'sheet', 'mattress',
-        'cama', 'almohada', 'sabana', 'cobija', 'colcha',
-        'bedroom', 'dormitorio'
+        'bed',
+        'pillow',
+        'blanket',
+        'sheet',
+        'mattress',
+        'cama',
+        'almohada',
+        'sabana',
+        'cobija',
+        'colcha',
+        'bedroom',
+        'dormitorio',
       ],
     ),
     PredefinedTask(
@@ -50,8 +77,15 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🗑️',
       verificationKeywords: [
-        'trash', 'garbage', 'bin', 'bag', 'waste',
-        'basura', 'bolsa', 'contenedor', 'reciclaje'
+        'trash',
+        'garbage',
+        'bin',
+        'bag',
+        'waste',
+        'basura',
+        'bolsa',
+        'contenedor',
+        'reciclaje',
       ],
     ),
     PredefinedTask(
@@ -61,8 +95,16 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🧹',
       verificationKeywords: [
-        'broom', 'mop', 'floor', 'clean', 'bucket',
-        'escoba', 'trapeador', 'piso', 'balde', 'fregona'
+        'broom',
+        'mop',
+        'floor',
+        'clean',
+        'bucket',
+        'escoba',
+        'trapeador',
+        'piso',
+        'balde',
+        'fregona',
       ],
     ),
     PredefinedTask(
@@ -72,9 +114,21 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '👕',
       verificationKeywords: [
-        'clothes', 'shirt', 'pants', 'washing', 'laundry', 'detergent',
-        'ropa', 'camisa', 'pantalon', 'lavadora', 'detergente', 'jabon',
-        'clothesline', 'tendedero', 'secadora'
+        'clothes',
+        'shirt',
+        'pants',
+        'washing',
+        'laundry',
+        'detergent',
+        'ropa',
+        'camisa',
+        'pantalon',
+        'lavadora',
+        'detergente',
+        'jabon',
+        'clothesline',
+        'tendedero',
+        'secadora',
       ],
     ),
     PredefinedTask(
@@ -84,9 +138,23 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🍳',
       verificationKeywords: [
-        'food', 'cooking', 'stove', 'pan', 'pot', 'kitchen',
-        'comida', 'cocinar', 'estufa', 'sarten', 'olla', 'cocina',
-        'vegetable', 'fruit', 'verdura', 'fruta', 'ingredient'
+        'food',
+        'cooking',
+        'stove',
+        'pan',
+        'pot',
+        'kitchen',
+        'comida',
+        'cocinar',
+        'estufa',
+        'sarten',
+        'olla',
+        'cocina',
+        'vegetable',
+        'fruit',
+        'verdura',
+        'fruta',
+        'ingredient',
       ],
     ),
     PredefinedTask(
@@ -96,8 +164,16 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '👔',
       verificationKeywords: [
-        'closet', 'clothes', 'hanger', 'wardrobe', 'fold',
-        'armario', 'ropa', 'percha', 'clóset', 'doblar'
+        'closet',
+        'clothes',
+        'hanger',
+        'wardrobe',
+        'fold',
+        'armario',
+        'ropa',
+        'percha',
+        'clóset',
+        'doblar',
       ],
     ),
     PredefinedTask(
@@ -107,8 +183,18 @@ class PredefinedTasks {
       category: 'hogar',
       icon: '🚿',
       verificationKeywords: [
-        'bathroom', 'toilet', 'sink', 'shower', 'clean', 'soap',
-        'baño', 'inodoro', 'lavabo', 'ducha', 'limpiar', 'jabon'
+        'bathroom',
+        'toilet',
+        'sink',
+        'shower',
+        'clean',
+        'soap',
+        'baño',
+        'inodoro',
+        'lavabo',
+        'ducha',
+        'limpiar',
+        'jabon',
       ],
     ),
 
@@ -120,9 +206,21 @@ class PredefinedTasks {
       category: 'salud',
       icon: '💪',
       verificationKeywords: [
-        'exercise', 'workout', 'gym', 'dumbbell', 'running', 'yoga',
-        'ejercicio', 'pesa', 'mancuerna', 'gimnasio', 'correr', 'yoga',
-        'mat', 'colchoneta', 'resistance'
+        'exercise',
+        'workout',
+        'gym',
+        'dumbbell',
+        'running',
+        'yoga',
+        'ejercicio',
+        'pesa',
+        'mancuerna',
+        'gimnasio',
+        'correr',
+        'yoga',
+        'mat',
+        'colchoneta',
+        'resistance',
       ],
     ),
     PredefinedTask(
@@ -132,8 +230,16 @@ class PredefinedTasks {
       category: 'salud',
       icon: '💧',
       verificationKeywords: [
-        'water', 'glass', 'bottle', 'drink', 'hydration',
-        'agua', 'vaso', 'botella', 'beber', 'hidratacion'
+        'water',
+        'glass',
+        'bottle',
+        'drink',
+        'hydration',
+        'agua',
+        'vaso',
+        'botella',
+        'beber',
+        'hidratacion',
       ],
     ),
     PredefinedTask(
@@ -143,8 +249,16 @@ class PredefinedTasks {
       category: 'salud',
       icon: '🧘',
       verificationKeywords: [
-        'meditation', 'peaceful', 'calm', 'breathing', 'mindful',
-        'meditacion', 'paz', 'calma', 'respiracion', 'mindfulness'
+        'meditation',
+        'peaceful',
+        'calm',
+        'breathing',
+        'mindful',
+        'meditacion',
+        'paz',
+        'calma',
+        'respiracion',
+        'mindfulness',
       ],
     ),
     PredefinedTask(
@@ -154,8 +268,18 @@ class PredefinedTasks {
       category: 'salud',
       icon: '😴',
       verificationKeywords: [
-        'bed', 'sleep', 'pillow', 'blanket', 'night', 'rest',
-        'cama', 'dormir', 'almohada', 'cobija', 'noche', 'descanso'
+        'bed',
+        'sleep',
+        'pillow',
+        'blanket',
+        'night',
+        'rest',
+        'cama',
+        'dormir',
+        'almohada',
+        'cobija',
+        'noche',
+        'descanso',
       ],
     ),
 
@@ -167,8 +291,16 @@ class PredefinedTasks {
       category: 'personal',
       icon: '📖',
       verificationKeywords: [
-        'book', 'reading', 'page', 'novel', 'library',
-        'libro', 'leer', 'pagina', 'novela', 'biblioteca'
+        'book',
+        'reading',
+        'page',
+        'novel',
+        'library',
+        'libro',
+        'leer',
+        'pagina',
+        'novela',
+        'biblioteca',
       ],
     ),
     PredefinedTask(
@@ -178,8 +310,16 @@ class PredefinedTasks {
       category: 'personal',
       icon: '📝',
       verificationKeywords: [
-        'diary', 'journal', 'writing', 'pen', 'notebook',
-        'diario', 'escribir', 'lapiz', 'cuaderno', 'nota'
+        'diary',
+        'journal',
+        'writing',
+        'pen',
+        'notebook',
+        'diario',
+        'escribir',
+        'lapiz',
+        'cuaderno',
+        'nota',
       ],
     ),
     PredefinedTask(
@@ -189,8 +329,14 @@ class PredefinedTasks {
       category: 'personal',
       icon: '📞',
       verificationKeywords: [
-        'phone', 'call', 'talking', 'family',
-        'telefono', 'llamar', 'hablar', 'familia'
+        'phone',
+        'call',
+        'talking',
+        'family',
+        'telefono',
+        'llamar',
+        'hablar',
+        'familia',
       ],
     ),
     PredefinedTask(
@@ -200,8 +346,16 @@ class PredefinedTasks {
       category: 'personal',
       icon: '🚶',
       verificationKeywords: [
-        'walking', 'outdoor', 'street', 'park', 'nature',
-        'caminar', 'calle', 'parque', 'natura', 'paseo'
+        'walking',
+        'outdoor',
+        'street',
+        'park',
+        'nature',
+        'caminar',
+        'calle',
+        'parque',
+        'natura',
+        'paseo',
       ],
     ),
 
@@ -213,8 +367,16 @@ class PredefinedTasks {
       category: 'estudio',
       icon: '📚',
       verificationKeywords: [
-        'study', 'book', 'notebook', 'computer', 'desk',
-        'estudiar', 'libro', 'cuaderno', 'computador', 'escritorio'
+        'study',
+        'book',
+        'notebook',
+        'computer',
+        'desk',
+        'estudiar',
+        'libro',
+        'cuaderno',
+        'computador',
+        'escritorio',
       ],
     ),
     PredefinedTask(
@@ -224,8 +386,16 @@ class PredefinedTasks {
       category: 'trabajo',
       icon: '🖥️',
       verificationKeywords: [
-        'desk', 'office', 'computer', 'organize', 'clean',
-        'escritorio', 'oficina', 'computador', 'organizar', 'limpiar'
+        'desk',
+        'office',
+        'computer',
+        'organize',
+        'clean',
+        'escritorio',
+        'oficina',
+        'computador',
+        'organizar',
+        'limpiar',
       ],
     ),
     PredefinedTask(
@@ -235,8 +405,14 @@ class PredefinedTasks {
       category: 'trabajo',
       icon: '📧',
       verificationKeywords: [
-        'email', 'computer', 'inbox', 'message',
-        'correo', 'computador', 'bandeja', 'mensaje'
+        'email',
+        'computer',
+        'inbox',
+        'message',
+        'correo',
+        'computador',
+        'bandeja',
+        'mensaje',
       ],
     ),
 
@@ -248,8 +424,12 @@ class PredefinedTasks {
       category: 'personal',
       icon: '📵',
       verificationKeywords: [
-        'offline', 'phone', 'no screen',
-        'offline', 'celular', 'pantalla'
+        'offline',
+        'phone',
+        'no screen',
+        'offline',
+        'celular',
+        'pantalla',
       ],
     ),
     PredefinedTask(
@@ -259,8 +439,16 @@ class PredefinedTasks {
       category: 'salud',
       icon: '🌿',
       verificationKeywords: [
-        'walking', 'outdoor', 'nature', 'park', 'street',
-        'caminar', 'natura', 'parque', 'calle', 'aire'
+        'walking',
+        'outdoor',
+        'nature',
+        'park',
+        'street',
+        'caminar',
+        'natura',
+        'parque',
+        'calle',
+        'aire',
       ],
     ),
     PredefinedTask(
@@ -270,8 +458,16 @@ class PredefinedTasks {
       category: 'salud',
       icon: '🍽️',
       verificationKeywords: [
-        'food', 'eating', 'table', 'plate', 'meal',
-        'comida', 'comer', 'mesa', 'plato', 'almuerzo'
+        'food',
+        'eating',
+        'table',
+        'plate',
+        'meal',
+        'comida',
+        'comer',
+        'mesa',
+        'plato',
+        'almuerzo',
       ],
     ),
     PredefinedTask(
@@ -281,8 +477,14 @@ class PredefinedTasks {
       category: 'salud',
       icon: '🪷',
       verificationKeywords: [
-        'calm', 'peaceful', 'quiet', 'still',
-        'calma', 'paz', 'silencio', 'quiet'
+        'calm',
+        'peaceful',
+        'quiet',
+        'still',
+        'calma',
+        'paz',
+        'silencio',
+        'quiet',
       ],
     ),
   ];
@@ -292,10 +494,10 @@ class PredefinedTasks {
   }
 
   static List<String> get categories => [
-        'hogar',
-        'salud',
-        'personal',
-        'trabajo',
-        'estudio',
-      ];
+    'hogar',
+    'salud',
+    'personal',
+    'trabajo',
+    'estudio',
+  ];
 }

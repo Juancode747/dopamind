@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../services/app_provider.dart';
 import '../utils/colors.dart';
 
@@ -20,16 +21,20 @@ class AchievementsScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Mis Logros',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: Text(
+                      'Mis Logros',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -114,10 +119,7 @@ class AchievementsScreen extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
         ),
       ],
     );
@@ -192,8 +194,9 @@ class AchievementsScreen extends StatelessWidget {
                           child: LinearProgressIndicator(
                             value: achievement.progress,
                             backgroundColor: AppColors.divider,
-                            valueColor:
-                                const AlwaysStoppedAnimation(AppColors.primary),
+                            valueColor: const AlwaysStoppedAnimation(
+                              AppColors.primary,
+                            ),
                             minHeight: 6,
                           ),
                         ),
